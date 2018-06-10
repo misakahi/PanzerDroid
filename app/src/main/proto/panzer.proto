@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+
+package panzer;
+
+
+service Panzer {
+
+    rpc Drive (DriveRequest) returns (DriveResponse) {}
+}
+
+message DriveRequest {
+   double l_level = 1;    // [-1,1]
+   double r_level = 2;    // [-1,1]
+}
+
+message DriveResponse {
+    bool success = 1;
+}
