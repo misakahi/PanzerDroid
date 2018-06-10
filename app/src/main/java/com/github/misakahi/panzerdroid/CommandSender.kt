@@ -3,7 +3,6 @@ package com.github.misakahi.panzerdroid
 import android.util.Log
 import com.google.protobuf.MessageLite
 import io.grpc.StatusRuntimeException
-import panzer.PanzerOuterClass
 import kotlin.concurrent.thread
 
 
@@ -41,28 +40,37 @@ class CommandSender constructor(host: String, port: Int) {
         }
     }
 
-    fun<T: MessageLite, U: MessageLite> sendActually(call: (T)->U , data: ProtoCompatible): U? {
-        var request: T? = data.toProto() as T?
-        if (request != null) {
-            Log.i(TAG, "Send " + request.toString())
-            val response = try {
-                call(request)
-            } catch (e: StatusRuntimeException) {
-                Log.w(TAG, "RPC failed " + e.status)
-                null
+    fun buildControlData(): ControlData {
+        val data = ControlData()
+        for (entry in commandMap.entries) {
+            when (entry.key) {
+                Command.DRIVE -> data.driveData = entry.value as DriveData?
             }
-            Log.i(TAG, "Recv " + response.toString())
-            return response
-        } else {
-            return null
         }
+        return data
     }
 
-    fun startWatch(intervalMillis: Long) {
+    fun<T: MessageLite, U: MessageLite> sendActually(call: (T)->U , data: ProtoCompatible): U? {
+        val request = data.toProto() as T
+        Log.i(TAG, "Send " + request.toString())
+        val response = try {
+            call(request)
+        } catch (e: StatusRuntimeException) {
+            Log.w(TAG, "RPC failed " + e.status)
+            null
+        }
+        Log.i(TAG, "Recv " + response.toString())
+        return response
+    }
+
+    fun startThread(intervalMillis: Long) {
         thread {
             var count: Long = 0
             while (true) {
-                send()
+                if (commandMap.size > 0) {
+                    val data = buildControlData()
+                    sendActually(client.blockingStub::control, data)
+                }
                 Thread.sleep(intervalMillis)
                 count += intervalMillis
             }

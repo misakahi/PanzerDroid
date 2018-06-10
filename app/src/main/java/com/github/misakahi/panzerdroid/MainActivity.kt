@@ -12,16 +12,11 @@ class MainActivity : AppCompatActivity() {
     private val button: Button by lazy { findViewById<Button>(R.id.button) }
     private val host = "192.168.1.17"
     private val port = 50051
-    // private val rpcStub by lazy { PanzerClient("192.168.1.17", 50051) }
     private val sender = CommandSender(host, port)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        button.setOnClickListener {
-            // this.rpcStub.drive(-1.0, 1.0)
-        }
 
         findViewById<View>(R.id.text).setOnTouchListener{ view, motionEvent ->
             Log.i("main",""+motionEvent.action)
@@ -36,6 +31,6 @@ class MainActivity : AppCompatActivity() {
             return@setOnTouchListener true
         }
 
-        sender.startWatch(50)
+        sender.startThread(50)
     }
 }

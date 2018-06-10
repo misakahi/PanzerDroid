@@ -7,6 +7,9 @@ package panzer;
 service Panzer {
 
     rpc Drive (DriveRequest) returns (DriveResponse) {}
+
+    // Control components in bulk
+    rpc Control (ControlRequest) returns (ControlResponse) {}
 }
 
 message DriveRequest {
@@ -15,5 +18,14 @@ message DriveRequest {
 }
 
 message DriveResponse {
+    bool success = 1;
+}
+
+// Control components in bulk
+message ControlRequest {
+    DriveRequest driveRequest = 1;
+}
+
+message ControlResponse {
     bool success = 1;
 }
