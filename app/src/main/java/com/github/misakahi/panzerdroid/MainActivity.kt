@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.github.misakahi.panzerdroid.settings.SettingsActivity
+import io.github.controlwear.virtual.joystick.android.JoystickView
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +23,9 @@ class MainActivity : AppCompatActivity() {
 
     // Views
     private val connectionTextView by lazy { findViewById<TextView>(R.id.connection_text_view) }
+    private val joystickViewLeft by lazy { findViewById<JoystickView>(R.id.joystickViewLeft) }
+    // TODO enable me later
+//    private val joystickViewRight by lazy { findViewById<JoystickView>(R.id.joystickViewRight) }
 
     private val handler= Handler()
     private var commandSender: CommandSender? = null
@@ -36,29 +40,17 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        findViewById<View>(R.id.text).setOnTouchListener{ _, motionEvent ->
-            Log.i("main",""+motionEvent.action)
-            when (motionEvent.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    commandSender?.activateAndSend(Command.DRIVE, DriveData(1.0, 1.0))
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    commandSender?.activate(Command.DRIVE, DriveData(1.0, 1.0))
-                }
-                MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
-                    commandSender?.deactivate(Command.DRIVE)
-                }
-            }
-            return@setOnTouchListener true
-        }
+        joystickViewLeft.setOnMoveListener { angle, strength -> run {
+            Log.v("joystick", "$angle $strength")
+            commandSender?.send(Command.DRIVE, DriveData.fromAngleStrength(angle, strength))
+        } }
     }
 
     override fun onResume() {
         super.onResume()
-        connectServer()
 
-        if (heartbeatThread== null)
-            heartbeatThread = startHeartbeat()
+        connectServer()
+        heartbeatThread = heartbeatThread ?: startHeartbeat()
     }
 
     /**
@@ -72,9 +64,7 @@ class MainActivity : AppCompatActivity() {
         Log.v("MAIN", "Rebuild CommandSender($host, $port)")
 
         try {
-            commandSender?.stopThreads()
             commandSender = CommandSender(host, port)
-            commandSender?.startThread(10)
             Toast.makeText(this, "Connecting to $host:$port", Toast.LENGTH_SHORT).show()
         }
         catch (e: IllegalArgumentException) {

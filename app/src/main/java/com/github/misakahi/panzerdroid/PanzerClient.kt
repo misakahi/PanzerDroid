@@ -7,10 +7,9 @@ import io.grpc.StatusRuntimeException
 import panzer.PanzerGrpc
 import panzer.PanzerOuterClass
 
-class PanzerClient
-    internal constructor(channel: ManagedChannel) {
+class PanzerClient internal constructor(channel: ManagedChannel) {
 
-    val blockingStub = PanzerGrpc.newBlockingStub(channel)
+    val blockingStub: PanzerGrpc.PanzerBlockingStub = PanzerGrpc.newBlockingStub(channel)
     private val TAG = "PanzerClient"
 
     constructor(host: String, port: Int) : this(ManagedChannelBuilder.forAddress(host, port)
@@ -38,12 +37,12 @@ class PanzerClient
      */
     fun pingPong(): Boolean {
         val request = PanzerOuterClass.Ping.newBuilder().build()
-        try {
+        return try {
             blockingStub.sendPing(request)
-            return true
+            true
         } catch (e: StatusRuntimeException) {
             Log.w(TAG, "RPC failed " + e.status)
-            return false
+            false
         }
     }
 }

@@ -13,10 +13,9 @@ enum class Command {
 
 class CommandSender constructor(host: String, port: Int) {
     val TAG = "CommandSender"
-    val client = PanzerClient(host, port)
+    private val client = PanzerClient(host, port)
 
-    val commandMap = HashMap<Command, ProtoCompatible>()
-    private var isConnected : Boolean = false
+    private val commandMap = HashMap<Command, ProtoCompatible>()
 
     // threads
     var sendCommandThread: Thread? = null
@@ -35,10 +34,6 @@ class CommandSender constructor(host: String, port: Int) {
     fun deactivate(command: Command) {
         Log.i(TAG, "deactivate " + command.toString())
         commandMap.remove(command)
-    }
-
-    fun isConnected(): Boolean {
-        return isConnected
     }
 
     fun send() {
@@ -65,7 +60,8 @@ class CommandSender constructor(host: String, port: Int) {
         return data
     }
 
-    fun<T: MessageLite, U: MessageLite> sendActually(call: (T)->U , data: ProtoCompatible): U? {
+    private fun<T: MessageLite, U: MessageLite> sendActually(call: (T)->U , data: ProtoCompatible): U? {
+        @Suppress("UNCHECKED_CAST")
         val request = data.toProto() as T
         Log.i(TAG, "Send " + request.toString())
         val response = try {
