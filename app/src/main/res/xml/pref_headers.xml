@@ -4,17 +4,7 @@
 
     <header
         android:fragment="com.github.misakahi.panzerdroid.settings.SettingsActivity$GeneralPreferenceFragment"
-        android:icon="@drawable/ic_info_black_24dp"
-        android:title="@string/pref_header_general" />
-
-    <header
-        android:fragment="com.github.misakahi.panzerdroid.settings.SettingsActivity$NotificationPreferenceFragment"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/pref_header_notifications" />
-
-    <header
-        android:fragment="com.github.misakahi.panzerdroid.settings.SettingsActivity$DataSyncPreferenceFragment"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/pref_header_data_sync" />
+        android:icon="@drawable/ic_network_wifi_black_24dp"
+        android:title="@string/pref_header_connection" />
 
 </preference-headers>

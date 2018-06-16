@@ -76,7 +76,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
     class GeneralPreferenceFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            addPreferencesFromResource(R.xml.pref_general)
+            addPreferencesFromResource(R.xml.pref_connection)
             setHasOptionsMenu(true)
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
