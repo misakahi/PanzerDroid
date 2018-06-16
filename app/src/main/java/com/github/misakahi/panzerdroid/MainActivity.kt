@@ -27,8 +27,6 @@ class MainActivity : AppCompatActivity() {
     private val serverConnectionTextView by lazy { findViewById<TextView>(R.id.server_connection_text_view) }
     private val cameraConnectionTextView by lazy { findViewById<TextView>(R.id.camera_connection_text_view) }
     private val joystickViewLeft by lazy { findViewById<JoystickView>(R.id.joystickViewLeft) }
-    // TODO enable me later
-//    private val joystickViewRight by lazy { findViewById<JoystickView>(R.id.joystickViewRight) }
 
     private val handler= Handler()
     private var commandSender: CommandSender? = null
@@ -63,9 +61,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun reconnect() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val host: String = sharedPref.getString(SettingsActivity.KEY_PREF_HOST, "")
-        val controlPort = sharedPref.getString(SettingsActivity.KEY_PREF_CONTROL_PORT, "0").toInt()
-        val cameraPort = sharedPref.getString(SettingsActivity.KEY_PREF_CAMERA_PORT, "0").toInt()
+        val host: String = sharedPref.getString(SettingsActivity.KEY_PREF_HOST, getString(R.string.pref_default_host))
+        val controlPort: Int = sharedPref.getString(SettingsActivity.KEY_PREF_CONTROL_PORT, getString(R.string.pref_default_control_port)).toInt()
+        val cameraPort: Int = sharedPref.getString(SettingsActivity.KEY_PREF_CAMERA_PORT, getString(R.string.pref_default_camera_port)).toInt()
 
         connectServer(host, controlPort)
         connectCamera(host, cameraPort, 5)

@@ -11,10 +11,10 @@
         android:id="@+id/mjpeg_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -50,6 +50,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="TextView"
+        android:typeface="monospace"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -60,6 +61,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:text="TextView"
+        android:typeface="monospace"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/server_connection_text_view" />
 
@@ -77,21 +79,5 @@
         custom:JV_fixedCenter="false"
         custom:layout_constraintBottom_toBottomOf="parent"
         custom:layout_constraintStart_toStartOf="parent" />
-
-    <!--TODO enable me later-->
-    <!--<io.github.controlwear.virtual.joystick.android.JoystickView-->
-        <!--android:id="@+id/joystickViewRight"-->
-        <!--android:layout_width="180dp"-->
-        <!--android:layout_height="180dp"-->
-        <!--android:layout_marginBottom="8dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--app:JV_backgroundColor="#009688"-->
-        <!--app:JV_borderColor="#00796B"-->
-        <!--app:JV_borderWidth="4dp"-->
-        <!--app:JV_buttonColor="#FF6E40"-->
-        <!--app:JV_buttonSizeRatio="15%"-->
-        <!--app:JV_fixedCenter="false"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent" />-->
 
 </android.support.constraint.ConstraintLayout>
