@@ -2,7 +2,7 @@
     <string name="app_name">PanzerDroid</string>
 
     <!-- Example General settings -->
-    <string name="pref_header_connection">Connection</string>
+    <string name="pref_header_general">General</string>
 
     <string name="pref_title_host">Host</string>
     <string name="pref_default_host">"192.168.1.1"</string>
