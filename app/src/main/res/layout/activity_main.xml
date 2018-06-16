@@ -26,19 +26,20 @@
         stream:type="stream_default" />
 
     <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="42dp" />
-
-    <Button
         android:id="@+id/setting_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Setting"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="42dp" />
+        tools:layout_editor_absoluteX="306dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <TextView
+        android:id="@+id/connection_text_view"
+        android:layout_width="203dp"
+        android:layout_height="44dp"
+        android:text="TextView"
+        android:textColor="@android:color/white"
+        tools:layout_editor_absoluteX="88dp"
+        tools:layout_editor_absoluteY="0dp" />
 
 </android.support.constraint.ConstraintLayout>

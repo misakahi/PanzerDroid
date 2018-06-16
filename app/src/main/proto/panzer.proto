@@ -10,11 +10,13 @@ service Panzer {
 
     // Control components in bulk
     rpc Control (ControlRequest) returns (ControlResponse) {}
+
+    rpc SendPing (Ping) returns (Pong) {}
 }
 
 message DriveRequest {
-   double l_level = 1;    // [-1,1]
-   double r_level = 2;    // [-1,1]
+   double left_level = 1;    // [-1,1]
+   double right_level = 2;    // [-1,1]
 }
 
 message DriveResponse {
@@ -28,4 +30,12 @@ message ControlRequest {
 
 message ControlResponse {
     bool success = 1;
+}
+
+message Ping {
+    string ping = 1;
+}
+
+message Pong {
+    string pong = 1;
 }

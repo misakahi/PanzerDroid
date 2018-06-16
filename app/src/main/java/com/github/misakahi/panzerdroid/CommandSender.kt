@@ -10,20 +10,35 @@ enum class Command {
     DRIVE,
 }
 
+
 class CommandSender constructor(host: String, port: Int) {
     val TAG = "CommandSender"
     val client = PanzerClient(host, port)
 
     val commandMap = HashMap<Command, ProtoCompatible>()
+    private var isConnected : Boolean = false
+
+    // threads
+    var sendCommandThread: Thread? = null
+    var isThreadActive = false
 
     fun activate(command: Command, data: ProtoCompatible) {
         Log.i(TAG, "activate " + command.toString())
         commandMap[command] = data
     }
 
+    fun activateAndSend(command: Command, data: ProtoCompatible) {
+        activate(command, data)
+        send(command, data)
+    }
+
     fun deactivate(command: Command) {
         Log.i(TAG, "deactivate " + command.toString())
         commandMap.remove(command)
+    }
+
+    fun isConnected(): Boolean {
+        return isConnected
     }
 
     fun send() {
@@ -63,17 +78,31 @@ class CommandSender constructor(host: String, port: Int) {
         return response
     }
 
-    fun startThread(intervalMillis: Long) {
-        thread {
-            var count: Long = 0
-            while (true) {
+    fun startThread(sendCommandIntervalMillis: Long) {
+        isThreadActive = true
+
+        // thread already exist. do nothing.
+        if (sendCommandThread != null)
+            return
+
+        sendCommandThread = thread {
+            while (isThreadActive) {
                 if (commandMap.size > 0) {
                     val data = buildControlData()
                     sendActually(client.blockingStub::control, data)
                 }
-                Thread.sleep(intervalMillis)
-                count += intervalMillis
+                Thread.sleep(sendCommandIntervalMillis)
             }
+            Log.v(TAG, "sendCommandThread stopping")
         }
+    }
+
+    fun stopThreads() {
+        isThreadActive = false
+        sendCommandThread = null
+    }
+
+    fun pingPong(): Boolean {
+        return client.pingPong()
     }
 }

@@ -19,8 +19,8 @@ class PanzerClient
 
     fun drive(left_level: Double, right_level: Double) {
         val request = PanzerOuterClass.DriveRequest.newBuilder()
-                .setLLevel(left_level)
-                .setRLevel(right_level)
+                .setLeftLevel(left_level)
+                .setRightLevel(right_level)
                 .build()
 
         val response = try {
@@ -29,6 +29,22 @@ class PanzerClient
             Log.w(TAG, "RPC failed " + e.status)
         }
         Log.i(TAG, response.toString())
+    }
+
+    /**
+     * Ping-Pong (heartbeat)
+     *
+     * @return true if ping-pong succeeds otherwise false
+     */
+    fun pingPong(): Boolean {
+        val request = PanzerOuterClass.Ping.newBuilder().build()
+        try {
+            blockingStub.sendPing(request)
+            return true
+        } catch (e: StatusRuntimeException) {
+            Log.w(TAG, "RPC failed " + e.status)
+            return false
+        }
     }
 }
 

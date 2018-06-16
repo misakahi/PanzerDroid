@@ -11,8 +11,8 @@ data class DriveData(val left_level: Double, val right_level: Double) : ProtoCom
 
     override fun toProto(): PanzerOuterClass.DriveRequest {
         return PanzerOuterClass.DriveRequest.newBuilder()
-                .setLLevel(left_level)
-                .setRLevel(right_level)
+                .setLeftLevel(left_level)
+                .setRightLevel(right_level)
                 .build()
     }
 }
