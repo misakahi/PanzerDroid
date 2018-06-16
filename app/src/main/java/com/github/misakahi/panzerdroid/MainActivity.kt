@@ -8,6 +8,7 @@ import android.os.Handler
 import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import com.github.misakahi.panzerdroid.settings.SettingsActivity
@@ -37,13 +38,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Setting button - show setting view
-        findViewById<Button>(R.id.setting_button).setOnClickListener {
+        findViewById<ImageButton>(R.id.setting_button).setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
 
         // Reconnect button - try reconnect server
-        findViewById<Button>(R.id.reconnect_button).setOnClickListener {
+        findViewById<ImageButton>(R.id.reconnect_button).setOnClickListener {
             reconnect()
         }
 

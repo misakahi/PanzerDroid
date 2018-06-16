@@ -23,22 +23,24 @@
         app:layout_constraintVertical_bias="0.0"
         stream:type="stream_default" />
 
-    <Button
+    <ImageButton
         android:id="@+id/setting_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
+        android:src="@drawable/ic_settings_black_24dp"
         android:text="Setting"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <ImageButton
         android:id="@+id/reconnect_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
+        android:src="@drawable/ic_autorenew_black_24dp"
         android:text="Reconnect"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/setting_button" />
