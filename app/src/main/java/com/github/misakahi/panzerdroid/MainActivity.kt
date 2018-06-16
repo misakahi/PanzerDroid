@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         // Joy stick for driving
         joystickViewLeft.setOnMoveListener { angle, strength -> run {
-            Log.v("joystick", "$angle $strength")
+            Log.v(this.javaClass.name, "$angle $strength")
             commandSender?.send(Command.DRIVE, DriveData.fromAngleStrength(angle, strength))
         } }
     }

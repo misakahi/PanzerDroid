@@ -12,17 +12,15 @@ enum class Command {
 
 
 class CommandSender constructor(host: String, port: Int) {
-    val TAG = "CommandSender"
     private val client = PanzerClient(host, port)
-
     private val commandMap = HashMap<Command, ProtoCompatible>()
 
     // threads
-    var sendCommandThread: Thread? = null
-    var isThreadActive = false
+    private var sendCommandThread: Thread? = null
+    private var isThreadActive = false
 
     fun activate(command: Command, data: ProtoCompatible) {
-        Log.i(TAG, "activate " + command.toString())
+        Log.i(this.javaClass.name, "activate " + command.toString())
         commandMap[command] = data
     }
 
@@ -32,7 +30,7 @@ class CommandSender constructor(host: String, port: Int) {
     }
 
     fun deactivate(command: Command) {
-        Log.i(TAG, "deactivate " + command.toString())
+        Log.i(this.javaClass.name, "deactivate " + command.toString())
         commandMap.remove(command)
     }
 
@@ -63,14 +61,14 @@ class CommandSender constructor(host: String, port: Int) {
     private fun<T: MessageLite, U: MessageLite> sendActually(call: (T)->U , data: ProtoCompatible): U? {
         @Suppress("UNCHECKED_CAST")
         val request = data.toProto() as T
-        Log.i(TAG, "Send " + request.toString())
+        Log.i(this.javaClass.name, "Send " + request.toString())
         val response = try {
             call(request)
         } catch (e: StatusRuntimeException) {
-            Log.w(TAG, "RPC failed " + e.status)
+            Log.w(this.javaClass.name, "RPC failed " + e.status)
             null
         }
-        Log.i(TAG, "Recv " + response.toString())
+        Log.i(this.javaClass.name, "Recv " + response.toString())
         return response
     }
 
@@ -89,7 +87,7 @@ class CommandSender constructor(host: String, port: Int) {
                 }
                 Thread.sleep(sendCommandIntervalMillis)
             }
-            Log.v(TAG, "sendCommandThread stopping")
+            Log.v(this::class.toString(), "sendCommandThread stopping")
         }
     }
 

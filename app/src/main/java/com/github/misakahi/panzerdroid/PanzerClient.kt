@@ -10,7 +10,6 @@ import panzer.PanzerOuterClass
 class PanzerClient internal constructor(channel: ManagedChannel) {
 
     val blockingStub: PanzerGrpc.PanzerBlockingStub = PanzerGrpc.newBlockingStub(channel)
-    private val TAG = "PanzerClient"
 
     constructor(host: String, port: Int) : this(ManagedChannelBuilder.forAddress(host, port)
             .usePlaintext(true)
@@ -25,9 +24,9 @@ class PanzerClient internal constructor(channel: ManagedChannel) {
         val response = try {
             blockingStub.drive(request)
         } catch (e: StatusRuntimeException) {
-            Log.w(TAG, "RPC failed " + e.status)
+            Log.w(this.javaClass.name, "RPC failed " + e.status)
         }
-        Log.i(TAG, response.toString())
+        Log.i(this.javaClass.name, response.toString())
     }
 
     /**
@@ -41,7 +40,7 @@ class PanzerClient internal constructor(channel: ManagedChannel) {
             blockingStub.sendPing(request)
             true
         } catch (e: StatusRuntimeException) {
-            Log.w(TAG, "RPC failed " + e.status)
+            Log.w(this.javaClass.name, "RPC failed " + e.status)
             false
         }
     }
