@@ -7,12 +7,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.util.Log
-import android.view.MotionEvent
-import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.github.misakahi.panzerdroid.settings.SettingsActivity
+import com.github.niqdev.mjpeg.DisplayMode
+import com.github.niqdev.mjpeg.Mjpeg
+import com.github.niqdev.mjpeg.MjpegSurfaceView
 import io.github.controlwear.virtual.joystick.android.JoystickView
 import kotlin.concurrent.thread
 
@@ -22,7 +23,9 @@ class MainActivity : AppCompatActivity() {
     private val heartbeatIntervalMillis: Long = 1000
 
     // Views
-    private val connectionTextView by lazy { findViewById<TextView>(R.id.connection_text_view) }
+    private val mjpegView by lazy { findViewById<MjpegSurfaceView>(R.id.mjpeg_view) }
+    private val serverConnectionTextView by lazy { findViewById<TextView>(R.id.server_connection_text_view) }
+    private val cameraConnectionTextView by lazy { findViewById<TextView>(R.id.camera_connection_text_view) }
     private val joystickViewLeft by lazy { findViewById<JoystickView>(R.id.joystickViewLeft) }
     // TODO enable me later
 //    private val joystickViewRight by lazy { findViewById<JoystickView>(R.id.joystickViewRight) }
@@ -35,11 +38,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Setting button - show setting view
         findViewById<Button>(R.id.setting_button).setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
 
+        // Reconnect button - try reconnect server
+        findViewById<Button>(R.id.reconnect_button).setOnClickListener {
+            reconnect()
+        }
+
+        // Joy stick for driving
         joystickViewLeft.setOnMoveListener { angle, strength -> run {
             Log.v("joystick", "$angle $strength")
             commandSender?.send(Command.DRIVE, DriveData.fromAngleStrength(angle, strength))
@@ -48,18 +58,30 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        reconnect()
+    }
 
-        connectServer()
-        heartbeatThread = heartbeatThread ?: startHeartbeat()
+    private fun reconnect() {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val host: String = sharedPref.getString(SettingsActivity.KEY_PREF_HOST, "")
+        val controlPort = sharedPref.getString(SettingsActivity.KEY_PREF_CONTROL_PORT, "0").toInt()
+        val cameraPort = sharedPref.getString(SettingsActivity.KEY_PREF_CAMERA_PORT, "0").toInt()
+
+        connectServer(host, controlPort)
+        connectCamera(host, cameraPort, 5)
+        heartbeatThread = heartbeatThread ?: startHeartbeat(host, controlPort)
+
+        // Show connection status
+        val serverConnectionText = "Server $host:$controlPort"
+        val cameraConnectionText = "Camera $host:$cameraPort"
+        serverConnectionTextView.text = serverConnectionText
+        cameraConnectionTextView.text = cameraConnectionText
     }
 
     /**
      * Connect control/camera server according to pref
      */
-    private fun connectServer() {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        val host: String = sharedPref.getString(SettingsActivity.KEY_PREF_HOST, "")
-        val port: Int = sharedPref.getString(SettingsActivity.KEY_PREF_CONTROL_PORT, "0").toInt()
+    private fun connectServer(host: String, port: Int) {
 
         Log.v("MAIN", "Rebuild CommandSender($host, $port)")
 
@@ -75,22 +97,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun startHeartbeat(): Thread {
+    private fun startHeartbeat(host: String, port: Int): Thread {
         return thread {
             while (true) {
-                val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-                val host: String = sharedPref.getString(SettingsActivity.KEY_PREF_HOST, "")
-                val port: String = sharedPref.getString(SettingsActivity.KEY_PREF_CONTROL_PORT, "0")
                 val isConnected: Boolean = commandSender?.pingPong() ?: false
                 val color = if (isConnected) Color.GREEN else Color.RED
 
                 handler.post {
-                    connectionTextView.text = "$host:$port"
-                    connectionTextView.setTextColor(color)
+                    serverConnectionTextView.setTextColor(color)
                 }
                 Log.v("heartbeat", "$host:$port $isConnected")
                 Thread.sleep(heartbeatIntervalMillis)
             }
         }
     }
+
+    private fun connectCamera(host: String, port: Int, timeout: Int) {
+        val streamUrl = "http://$host:$port/?action=stream"
+        Mjpeg.newInstance()
+                .open(streamUrl, timeout)
+                .subscribe({
+                    mjpegView.setSource(it)
+                    mjpegView.setDisplayMode(DisplayMode.BEST_FIT)
+                    mjpegView.showFps(true)
+                    cameraConnectionTextView.setTextColor(Color.GREEN)
+                },
+                {
+                    Log.e("loadIpCam", it.toString())
+                    Toast.makeText(this, "Error: Unable to connect camera.", Toast.LENGTH_LONG).show()
+                    cameraConnectionTextView.setTextColor(Color.RED)
+                })
+    }
+
 }

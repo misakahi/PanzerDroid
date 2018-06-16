@@ -156,8 +156,9 @@ class SettingsActivity : AppCompatPreferenceActivity() {
 
     companion object {
 
-        public final val KEY_PREF_HOST = "host"
-        public final val KEY_PREF_CONTROL_PORT = "control_port"
+        const val KEY_PREF_HOST = "host"
+        const val KEY_PREF_CONTROL_PORT = "control_port"
+        const val KEY_PREF_CAMERA_PORT = "camera_port"
 
         /**
          * A preference value change listener that updates the preference's summary
