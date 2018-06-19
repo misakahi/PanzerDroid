@@ -15,9 +15,14 @@ class CommandSender constructor(host: String, port: Int) {
     private val client = PanzerClient(host, port)
     private val commandMap = HashMap<Command, ProtoCompatible>()
 
-    // threads
-    private var sendCommandThread: Thread? = null
-    private var isThreadActive = false
+    private val sendCommandThread = object : RepeatThread() {
+        override fun running() {
+            if (commandMap.size > 0) {
+                val data = buildControlData()
+                sendActually(client.blockingStub::control, data)
+            }
+        }
+    }
 
     fun activate(command: Command, data: ProtoCompatible) {
         Log.i(this.javaClass.name, "activate " + command.toString())
@@ -73,27 +78,11 @@ class CommandSender constructor(host: String, port: Int) {
     }
 
     fun startThread(sendCommandIntervalMillis: Long) {
-        isThreadActive = true
-
-        // thread already exist. do nothing.
-        if (sendCommandThread != null)
-            return
-
-        sendCommandThread = thread {
-            while (isThreadActive) {
-                if (commandMap.size > 0) {
-                    val data = buildControlData()
-                    sendActually(client.blockingStub::control, data)
-                }
-                Thread.sleep(sendCommandIntervalMillis)
-            }
-            Log.v(this::class.toString(), "sendCommandThread stopping")
-        }
+        sendCommandThread.start(sendCommandIntervalMillis)
     }
 
     fun stopThreads() {
-        isThreadActive = false
-        sendCommandThread = null
+        sendCommandThread.stop()
     }
 
     fun pingPong(): Boolean {
