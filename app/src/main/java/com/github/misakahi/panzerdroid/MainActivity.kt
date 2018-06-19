@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -16,7 +15,6 @@ import com.github.niqdev.mjpeg.DisplayMode
 import com.github.niqdev.mjpeg.Mjpeg
 import com.github.niqdev.mjpeg.MjpegSurfaceView
 import io.github.controlwear.virtual.joystick.android.JoystickView
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,7 +29,11 @@ class MainActivity : AppCompatActivity() {
 
     private val handler= Handler()
     private var commandSender: CommandSender? = null
-    private var heartbeatThread: Thread? = null
+    private var pingPong: RepeatThread? = null
+
+    // constants
+    private val pingPongIntervalMillis: Long = 1000
+    private val sendCommandIntervalMillis: Long = 50
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,13 +70,17 @@ class MainActivity : AppCompatActivity() {
 
         connectServer(host, controlPort)
         connectCamera(host, cameraPort, 5)
-        heartbeatThread = heartbeatThread ?: startHeartbeat(host, controlPort)
+        startPingPong(host, controlPort)
 
         // Show connection status
-        val serverConnectionText = "Server $host:$controlPort"
-        val cameraConnectionText = "Camera $host:$cameraPort"
-        serverConnectionTextView.text = serverConnectionText
-        cameraConnectionTextView.text = cameraConnectionText
+        with(serverConnectionTextView) {
+            text = String.format(getString(R.string.view_server_connection_status), host, controlPort)
+            setTextColor(Color.RED)
+        }
+        with(cameraConnectionTextView) {
+            text = String.format(getString(R.string.view_camera_connection_status), host, cameraPort)
+            setTextColor(Color.RED)
+        }
     }
 
     /**
@@ -85,7 +91,9 @@ class MainActivity : AppCompatActivity() {
         Log.v("MAIN", "Rebuild CommandSender($host, $port)")
 
         try {
+            commandSender?.stop()
             commandSender = CommandSender(host, port)
+            commandSender?.start(sendCommandIntervalMillis)
             Toast.makeText(this, "Connecting to $host:$port", Toast.LENGTH_SHORT).show()
         }
         catch (e: IllegalArgumentException) {
@@ -96,23 +104,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun startHeartbeat(host: String, port: Int): Thread {
-        return thread {
-            while (true) {
+    /**
+     * Start ping pong to check connection availability
+     */
+    private fun startPingPong(host: String, port: Int) {
+        pingPong?.stop()  // stop if already exist
+        pingPong = object : RepeatThread() {
+            override fun running() {
                 val isConnected: Boolean = commandSender?.pingPong() ?: false
                 val color = if (isConnected) Color.GREEN else Color.RED
 
                 handler.post {
                     serverConnectionTextView.setTextColor(color)
                 }
-                Log.v("heartbeat", "$host:$port $isConnected")
-                Thread.sleep(heartbeatIntervalMillis)
+                Log.v("pingpong", "$host:$port $isConnected")
             }
         }
+        pingPong?.start(pingPongIntervalMillis)
     }
 
     private fun connectCamera(host: String, port: Int, timeout: Int) {
         val streamUrl = "http://$host:$port/?action=stream"
+
+        // TODO how to disconnect?
         Mjpeg.newInstance()
                 .open(streamUrl, timeout)
                 .subscribe({

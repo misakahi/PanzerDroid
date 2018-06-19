@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">PanzerDroid</string>
 
+    <!-- Strings in View -->
+    <string name="view_server_connection_status">Server %1$s:%2$d</string>
+    <string name="view_camera_connection_status">Camera %1$s:%2$d</string>
+
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 

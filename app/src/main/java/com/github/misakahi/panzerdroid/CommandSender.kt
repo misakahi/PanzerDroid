@@ -20,6 +20,7 @@ class CommandSender constructor(host: String, port: Int) {
             if (commandMap.size > 0) {
                 val data = buildControlData()
                 sendActually(client.blockingStub::control, data)
+                deactivateAll()
             }
         }
     }
@@ -39,14 +40,21 @@ class CommandSender constructor(host: String, port: Int) {
         commandMap.remove(command)
     }
 
+    fun deactivateAll() {
+        commandMap.keys.forEach { deactivate(it) }
+    }
+
     fun send() {
         for (entry in commandMap.entries) {
             send(entry.key, entry.value)
+
+            // no longer needed after sending
+            deactivate(entry.key)
         }
     }
 
     fun send(command: Command, data: ProtoCompatible) {
-        when(command) {
+        when (command) {
             Command.DRIVE -> {
                 sendActually(client.blockingStub::drive, data)
             }
@@ -77,11 +85,13 @@ class CommandSender constructor(host: String, port: Int) {
         return response
     }
 
-    fun startThread(sendCommandIntervalMillis: Long) {
+    fun start(sendCommandIntervalMillis: Long) {
+        Log.v(this.javaClass.name, "Starting... interval=$sendCommandIntervalMillis")
         sendCommandThread.start(sendCommandIntervalMillis)
     }
 
-    fun stopThreads() {
+    fun stop() {
+        Log.v(this.javaClass.name, "Stopping...")
         sendCommandThread.stop()
     }
 
