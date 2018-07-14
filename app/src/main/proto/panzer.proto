@@ -8,6 +8,8 @@ service Panzer {
 
     rpc Drive (DriveRequest) returns (DriveResponse) {}
 
+    rpc MoveTurret (MoveTurretRequest) returns (MoveTurretResponse) {}
+
     // Control components in bulk
     rpc Control (ControlRequest) returns (ControlResponse) {}
 
@@ -15,17 +17,27 @@ service Panzer {
 }
 
 message DriveRequest {
-   double left_level = 1;    // [-1,1]
-   double right_level = 2;    // [-1,1]
+   double left_level = 1;   // [-1,1]
+   double right_level = 2;  // [-1,1]
 }
 
 message DriveResponse {
     bool success = 1;
 }
 
+message MoveTurretRequest {
+    double rotation = 1;    // [-1,1] - rorate turret. positive=counterclockwise
+    double updown = 2;      // [-1,1] - move barrel
+}
+
+message MoveTurretResponse {
+    bool success = 1;
+}
+
 // Control components in bulk
 message ControlRequest {
     DriveRequest driveRequest = 1;
+    MoveTurretRequest moveTurretRequest = 2;
 }
 
 message ControlResponse {

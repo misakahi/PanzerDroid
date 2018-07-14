@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private val serverConnectionTextView by lazy { findViewById<TextView>(R.id.server_connection_text_view) }
     private val cameraConnectionTextView by lazy { findViewById<TextView>(R.id.camera_connection_text_view) }
     private val joystickViewLeft by lazy { findViewById<JoystickView>(R.id.joystickViewLeft) }
+    private val joystickViewRight by lazy { findViewById<JoystickView>(R.id.joystickViewRight) }
 
     private val handler= Handler()
     private var commandSender: CommandSender? = null
@@ -45,15 +46,25 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Reconnect button - try reconnect server
+        // Reconnect button - try reconnecting server
         findViewById<ImageButton>(R.id.reconnect_button).setOnClickListener {
             reconnect()
         }
 
         // Joy stick for driving
         joystickViewLeft.setOnMoveListener { angle, strength -> run {
-            Log.v(this.javaClass.name, "$angle $strength")
-            commandSender?.send(Command.DRIVE, DriveData.fromAngleStrength(angle, strength))
+            Log.v(this.javaClass.name, "joystick left $angle $strength")
+
+            val driveData = DriveData.fromAngleStrength(angle, strength)
+            commandSender?.activate(Command.DRIVE, driveData)
+        } }
+
+        // Joy stick for turret
+        joystickViewRight.setOnMoveListener { angle, strength -> run {
+            Log.v(this.javaClass.name, "joystick right $angle $strength")
+
+            val moveTurretData = MoveTurretData.fromAngleStrength(angle, strength)
+            commandSender?.activate(Command.MOVE_TURRET, moveTurretData)
         } }
     }
 

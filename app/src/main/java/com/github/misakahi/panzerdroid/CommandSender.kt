@@ -3,18 +3,19 @@ package com.github.misakahi.panzerdroid
 import android.util.Log
 import com.google.protobuf.MessageLite
 import io.grpc.StatusRuntimeException
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.thread
 
 
 enum class Command {
     DRIVE,
+    MOVE_TURRET,
 }
 
 
 class CommandSender constructor(host: String, port: Int) {
     private val client = PanzerClient(host, port)
-    private val commandMap = HashMap<Command, ProtoCompatible>()
-
+    private val commandMap = ConcurrentHashMap<Command, ProtoCompatible>()
     private val sendCommandThread = object : RepeatThread() {
         override fun running() {
             if (commandMap.size > 0) {
