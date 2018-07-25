@@ -66,6 +66,8 @@ data class MoveTurretData(val rotation: Double = 0.0, val updown: Double = 0.0) 
             val cos = Math.cos(theta)
             val sin = Math.sin(theta)
 
+            Log.v("MoveTurrentData", "$angle $strength $theta $cos $sin")
+
             return MoveTurretData(rotation = cos, updown = sin)
         }
     }

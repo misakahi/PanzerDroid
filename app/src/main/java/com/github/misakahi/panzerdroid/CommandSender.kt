@@ -62,11 +62,16 @@ class CommandSender constructor(host: String, port: Int) {
         }
     }
 
+    /**
+     * Build ControlData form command map
+     */
     fun buildControlData(): ControlData {
         val data = ControlData()
+        // TODO could we get rid of implicit mapping?
         for (entry in commandMap.entries) {
             when (entry.key) {
                 Command.DRIVE -> data.driveData = entry.value as DriveData?
+                Command.MOVE_TURRET -> data.moveTurretData = entry.value as MoveTurretData?
             }
         }
         return data
