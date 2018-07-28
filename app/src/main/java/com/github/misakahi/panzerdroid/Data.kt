@@ -8,13 +8,13 @@ interface ProtoCompatible {
     fun toProto(): MessageLite
 }
 
-data class DriveData(val leftLevel: Double = 0.0, val rightLevel: Double = 0.0) : ProtoCompatible {
+data class DriveData(var leftLevel: Double? = null, var rightLevel: Double? = null) : ProtoCompatible {
 
     override fun toProto(): PanzerOuterClass.DriveRequest {
-        return PanzerOuterClass.DriveRequest.newBuilder()
-                .setLeftLevel(leftLevel)
-                .setRightLevel(rightLevel)
-                .build()
+        val builder = PanzerOuterClass.DriveRequest.newBuilder()
+        leftLevel?.let { builder.setLeftLevel(it) }
+        rightLevel?.let { builder.setRightLevel(it) }
+        return builder.build()
     }
 
     companion object {
@@ -46,13 +46,13 @@ data class DriveData(val leftLevel: Double = 0.0, val rightLevel: Double = 0.0) 
     }
 }
 
-data class MoveTurretData(val rotation: Double = 0.0, val updown: Double = 0.0) : ProtoCompatible {
+data class MoveTurretData(var rotation: Double? = null, var updown: Double? = null) : ProtoCompatible {
 
     override fun toProto(): PanzerOuterClass.MoveTurretRequest {
-        return PanzerOuterClass.MoveTurretRequest.newBuilder()
-                .setRotation(rotation)
-                .setUpdown(updown)
-                .build()
+        val builder = PanzerOuterClass.MoveTurretRequest.newBuilder()
+        rotation?.let { builder.setRotation(it) }
+        updown?.let { builder.setUpdown(it) }
+        return builder.build()
     }
 
     companion object {
@@ -62,11 +62,14 @@ data class MoveTurretData(val rotation: Double = 0.0, val updown: Double = 0.0) 
          * Currently ignore strength
          */
         fun fromAngleStrength(angle: Int, strength: Int): MoveTurretData {
+            if (angle == 0 && strength == 0)
+                return MoveTurretData()
+
             val theta = angle / 180.0 * Math.PI   // deg -> rad
             val cos = Math.cos(theta)
             val sin = Math.sin(theta)
 
-            Log.v("MoveTurrentData", "$angle $strength $theta $cos $sin")
+            Log.v("MoveTurretData", "$angle $strength $theta $cos $sin")
 
             return MoveTurretData(rotation = cos, updown = sin)
         }
