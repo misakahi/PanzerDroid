@@ -65,13 +65,14 @@ data class MoveTurretData(var rotation: Double? = null, var updown: Double? = nu
             if (angle == 0 && strength == 0)
                 return MoveTurretData()
 
+            val level = strength / 100.0
             val theta = angle / 180.0 * Math.PI   // deg -> rad
             val cos = Math.cos(theta)
             val sin = Math.sin(theta)
 
             Log.v("MoveTurretData", "$angle $strength $theta $cos $sin")
 
-            return MoveTurretData(rotation = cos, updown = sin)
+            return MoveTurretData(rotation = level * cos, updown = level * sin)
         }
     }
 }
