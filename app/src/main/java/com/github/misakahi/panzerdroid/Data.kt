@@ -18,6 +18,9 @@ data class DriveData(var leftLevel: Double? = null, var rightLevel: Double? = nu
     }
 
     companion object {
+
+        var SPINTURN_ANGLE_DEG = 10
+
         /**
          * Create DriveDate from angle and strength on a joy pad
          *
@@ -29,12 +32,19 @@ data class DriveData(var leftLevel: Double? = null, var rightLevel: Double? = nu
             val level = strength / 100.0
             val theta = angle / 180.0 * Math.PI   // deg -> rad
             val sin = Math.sin(theta)
-            val signum = Math.signum(sin)
+            val signum = Math.signum(sin)   // either of -1, 0, +1
 
             Log.v("DriveData", "$angle $strength $level $theta $sin $signum")
 
-            // TODO spin turn
-            return if (angle in 0..90 || angle in 270..360) {
+            return if (angle in 0..10 || angle in 350..360) {
+                // neutral steering in clockwise
+                DriveData(level, -level)
+            }
+            else if (angle in 170..190) {
+                // neutral steering in counterclockwise
+                DriveData(-level, level)
+            }
+            else if (angle in 0..90 || angle in 270..360) {
                 DriveData(level*signum, level*sin)
             } else if (angle in 90..270) {
                 DriveData(level*sin, level* signum)
